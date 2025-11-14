@@ -1,41 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Lamborghini Rentals — Hero</title>
-  <link rel="stylesheet" href="style/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lamborghini Rentals</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
   <nav class="navbar">
-    <div class="logo">LAMBORENT</div>
+    <div class="logo">LamboRent</div>
     <ul class="nav-links">
-      <li class="active">Home</li>
+      <li>Home</li>
       <li>Models</li>
       <li>Contact</li>
     </ul>
   </nav>
 
-  <!-- Background that fills viewport -->
-  <div id="bg" class="background"></div>
+  <section class="hero">
 
-  <main class="hero">
-    <!-- LEFT: Info area (centered vertically) -->
-    <aside class="info">
-      <h1 id="carTitle">Lamborghini Aventador</h1>
-      <p id="carSubtitle">V12 power meets timeless design. The Aventador defines pure performance with iconic lines and raw energy.</p>
-      <button id="rentBtn" class="rent-btn">Rent Now</button>
-    </aside>
+    <!-- Left content -->
+    <div class="text-area">
+      <h1 id="car-name">Aventador SVJ</h1>
+      <p id="car-desc">
+        A masterpiece of aerodynamics and power, equipped with a V12 engine.
+      </p>
+      <button class="rent-btn">Rent Now</button>
+    </div>
 
-    <!-- RIGHT: horizontal gallery slider (3 visible) -->
-    <section class="gallery-viewport" aria-label="Car gallery">
-      <div class="gallery-track" id="track">
-        <!-- cards created by JS -->
+    <!-- Right-side slider -->
+    <div class="slider-container">
+      <div class="slider-track" id="sliderTrack">
+
+        <!-- Cloned last card (for infinite loop) -->
+        <div class="card clone">
+          <img src="https://via.placeholder.com/300x200" />
+          <h3>Huracán EVO</h3>
+        </div>
+
+        <!-- Real cards -->
+        <div class="card">
+          <img src="https://via.placeholder.com/300x200" />
+          <h3>Aventador SVJ</h3>
+        </div>
+
+        <div class="card">
+          <img src="https://via.placeholder.com/300x200" />
+          <h3>Urus Performante</h3>
+        </div>
+
+        <div class="card">
+          <img src="https://via.placeholder.com/300x200" />
+          <h3>Huracán STO</h3>
+        </div>
+
+        <div class="card">
+          <img src="https://via.placeholder.com/300x200" />
+          <h3>Revuelto</h3>
+        </div>
+
+        <!-- Cloned first card (for infinite loop) -->
+        <div class="card clone">
+          <img src="https://via.placeholder.com/300x200" />
+          <h3>Aventador SVJ</h3>
+        </div>
+
       </div>
-    </section>
-  </main>
+    </div>
 
-  <script src="js/main.js"></script>
+  </section>
+
+  <script src="js/app.js"></script>
+
 </body>
 </html>

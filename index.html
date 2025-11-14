@@ -1,76 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lamborghini Rentals</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lamborghini Rentals — Hero</title>
   <link rel="stylesheet" href="style/style.css" />
 </head>
 <body>
-
   <nav class="navbar">
-    <div class="logo">LamboRent</div>
+    <div class="logo">LAMBORGHINI RENTALS</div>
     <ul class="nav-links">
-      <li>Home</li>
+      <li class="active">Home</li>
       <li>Models</li>
       <li>Contact</li>
     </ul>
   </nav>
 
-  <section class="hero">
+  <!-- full-screen background that changes with active card -->
+  <div id="bg" class="background" aria-hidden="true"></div>
 
-    <!-- Left content -->
-    <div class="text-area">
-      <h1 id="car-name">Aventador SVJ</h1>
-      <p id="car-desc">
-        A masterpiece of aerodynamics and power, equipped with a V12 engine.
-      </p>
-      <button class="rent-btn">Rent Now</button>
-    </div>
+  <main class="hero">
+    <!-- LEFT: Info block -->
+    <aside class="info">
+      <h1 id="carTitle">Lamborghini Aventador</h1>
+      <p id="carDesc">V12 power meets timeless design. The Aventador defines pure performance with iconic lines and raw energy.</p>
+      <button id="rentBtn" class="rent-btn">Rent Now</button>
+    </aside>
 
-    <!-- Right-side slider -->
-    <div class="slider-container">
-      <div class="slider-track" id="sliderTrack">
-
-        <!-- Cloned last card (for infinite loop) -->
-        <div class="card clone">
-          <img src="https://via.placeholder.com/300x200" />
-          <h3>Huracán EVO</h3>
-        </div>
-
-        <!-- Real cards -->
-        <div class="card">
-          <img src="https://via.placeholder.com/300x200" />
-          <h3>Aventador SVJ</h3>
-        </div>
-
-        <div class="card">
-          <img src="https://via.placeholder.com/300x200" />
-          <h3>Urus Performante</h3>
-        </div>
-
-        <div class="card">
-          <img src="https://via.placeholder.com/300x200" />
-          <h3>Huracán STO</h3>
-        </div>
-
-        <div class="card">
-          <img src="https://via.placeholder.com/300x200" />
-          <h3>Revuelto</h3>
-        </div>
-
-        <!-- Cloned first card (for infinite loop) -->
-        <div class="card clone">
-          <img src="https://via.placeholder.com/300x200" />
-          <h3>Aventador SVJ</h3>
-        </div>
-
-      </div>
-    </div>
-
-  </section>
+    <!-- RIGHT: Carousel viewport (shows exactly 3 portrait cards) -->
+    <section class="gallery-viewport" aria-label="Lamborghini carousel">
+      <div class="gallery-track" id="track"><!-- JS injects cards and clones --></div>
+    </section>
+  </main>
 
   <script src="js/main.js"></script>
-
 </body>
 </html>

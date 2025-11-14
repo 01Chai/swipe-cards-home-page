@@ -3,15 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Lamborghini — Infinite Carousel</title>
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
-
-  <!-- Preload first image -->
-  <link rel="preload" as="image" href="https://images.unsplash.com/photo-1619946794135-5bc917a2772f?q=80&w=1600">
-
-  <link rel="stylesheet" href="style/style.css" />
+  <title>Lamborghini Rentals — Hero</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
@@ -24,20 +17,25 @@
     </ul>
   </nav>
 
+  <!-- Background that fills viewport -->
   <div id="bg" class="background"></div>
 
   <main class="hero">
+    <!-- LEFT: Info area (centered vertically) -->
     <aside class="info">
-      <h1 id="title"></h1>
-      <p id="subtitle"></p>
+      <h1 id="carTitle">Lamborghini Aventador</h1>
+      <p id="carSubtitle">V12 power meets timeless design. The Aventador defines pure performance with iconic lines and raw energy.</p>
       <button id="rentBtn" class="rent-btn">Rent Now</button>
     </aside>
 
-    <section class="carousel" aria-label="Car gallery">
-      <div class="track" id="track"></div>
+    <!-- RIGHT: horizontal gallery slider (3 visible) -->
+    <section class="gallery-viewport" aria-label="Car gallery">
+      <div class="gallery-track" id="track">
+        <!-- cards created by JS -->
+      </div>
     </section>
   </main>
 
-  <script src="js/main.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

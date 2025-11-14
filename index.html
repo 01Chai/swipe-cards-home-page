@@ -1,16 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lamborghini Rentals</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lamborghini Rentals — Hero</title>
+  <link rel="stylesheet" href="style/style.css" />
 </head>
 <body>
 
-  <!-- NAVBAR -->
   <nav class="navbar">
-    <div class="logo">LamboRent</div>
+    <div class="logo">LAMBORENT</div>
     <ul class="nav-links">
       <li class="active">Home</li>
       <li>Models</li>
@@ -18,25 +17,24 @@
     </ul>
   </nav>
 
-  <!-- BACKGROUND -->
-  <div class="background" id="background"></div>
+  <!-- Background that fills viewport -->
+  <div id="bg" class="background"></div>
 
-  <!-- MAIN HERO WRAPPER -->
-  <div class="hero">
-
-    <!-- LEFT SIDE THUMBNAIL SLIDER -->
-    <div class="thumb-slider" id="thumbSlider">
-      <!-- Cards get injected by JS -->
-    </div>
-
-    <!-- RIGHT SIDE INFO -->
-    <div class="info">
-      <h1 id="carName"></h1>
-      <p id="carDesc"></p>
+  <main class="hero">
+    <!-- LEFT: Info area (centered vertically) -->
+    <aside class="info">
+      <h1 id="carTitle">Lamborghini Aventador</h1>
+      <p id="carSubtitle">V12 power meets timeless design. The Aventador defines pure performance with iconic lines and raw energy.</p>
       <button id="rentBtn" class="rent-btn">Rent Now</button>
-    </div>
+    </aside>
 
-  </div>
+    <!-- RIGHT: horizontal gallery slider (3 visible) -->
+    <section class="gallery-viewport" aria-label="Car gallery">
+      <div class="gallery-track" id="track">
+        <!-- cards created by JS -->
+      </div>
+    </section>
+  </main>
 
   <script src="js/main.js"></script>
 </body>

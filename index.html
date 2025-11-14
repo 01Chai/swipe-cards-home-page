@@ -4,11 +4,18 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Lamborghini Rentals — Hero</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+
+  <!-- Preload first hero image -->
+  <link rel="preload" as="image" href="https://images.unsplash.com/photo-1619946794135-5bc917a2772f?q=80&w=1600">
+
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <nav class="navbar">
+  <nav class="navbar" aria-label="Main navigation">
     <div class="logo">LAMBORENT</div>
     <ul class="nav-links">
       <li class="active">Home</li>
@@ -17,22 +24,17 @@
     </ul>
   </nav>
 
-  <!-- Background that fills viewport -->
   <div id="bg" class="background"></div>
 
   <main class="hero">
-    <!-- LEFT: Info area (centered vertically) -->
     <aside class="info">
       <h1 id="carTitle">Lamborghini Aventador</h1>
       <p id="carSubtitle">V12 power meets timeless design. The Aventador defines pure performance with iconic lines and raw energy.</p>
       <button id="rentBtn" class="rent-btn">Rent Now</button>
     </aside>
 
-    <!-- RIGHT: horizontal gallery slider (3 visible) -->
     <section class="gallery-viewport" aria-label="Car gallery">
-      <div class="gallery-track" id="track">
-        <!-- cards created by JS -->
-      </div>
+      <div class="gallery-track" id="track"></div>
     </section>
   </main>
 

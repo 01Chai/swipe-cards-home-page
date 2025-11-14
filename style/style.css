@@ -1,170 +1,111 @@
-/* RESET */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+/* === RESET === */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"Poppins",sans-serif;
+  background:#000;
+  color:#fff;
+  overflow:hidden;
 }
 
-body {
-  background: #000;
-  overflow: hidden;
+/* NAV */
+.navbar{
+  position:fixed;top:0;left:0;width:100%;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:18px 48px;z-index:50;
+  background:rgba(0,0,0,0.28);backdrop-filter:blur(10px);
+}
+.logo{font-weight:700;letter-spacing:1px}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links li{cursor:pointer;opacity:.95}
+.nav-links li.active,.nav-links li:hover{color:#f3d383}
+
+/* BACKGROUND (full-screen) */
+.background{
+  position:fixed;inset:0;z-index:0;
+  background-size:cover;background-position:center;
+  transition:opacity 1s ease, transform 1.2s ease;
+  opacity:1;
+  transform:scale(1);
+  will-change:transform,opacity;
 }
 
-/* NAVBAR */
-.navbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  padding: 20px 60px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  backdrop-filter: blur(10px);
-  background: rgba(0, 0, 0, 0.25);
-  color: white;
-  z-index: 20;
+/* HERO LAYOUT */
+.hero{
+  position:relative;z-index:10;height:100vh;display:flex;align-items:center;
+  padding:90px 80px;
 }
 
-.navbar .logo {
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: 1px;
+/* INFO (left) */
+.info{
+  width:42%;
+  padding-left:20px;
+  display:flex;flex-direction:column;
+  gap:18px;
+}
+.info h1{
+  font-family:'Montserrat',sans-serif;
+  font-size:48px;line-height:1;letter-spacing:0.6px;
+  color:#f3d383;opacity:1;transform:translateY(0);
+}
+.info p{font-size:18px;color:#e6e6e6;max-width:640px}
+.rent-btn{
+  width:max-content;padding:12px 28px;border-radius:30px;border:none;
+  background:#f3d383;color:#000;font-weight:700;cursor:pointer;
+  transition:transform .25s ease,box-shadow .25s;
+}
+.rent-btn:hover{transform:scale(1.05);box-shadow:0 12px 30px rgba(243,210,131,.18)}
+
+/* GALLERY (right) */
+/* card sizing math (exact):
+   cardWidth = 240px, gap = 20px
+   viewportWidth = cardWidth*3 + gap*2 = 760px
+*/
+.gallery-viewport{
+  position:absolute;right:80px;top:50%;transform:translateY(-50%);
+  width:760px;height:160px;overflow:hidden; /* shows exactly three cards */
+  z-index:15;
+  pointer-events:auto;
+}
+.gallery-track{
+  height:100%;display:flex;align-items:center;
+  gap:20px;transition:transform .6s cubic-bezier(.22,.9,.32,1);
+  will-change:transform;
 }
 
-.nav-links {
-  display: flex;
-  gap: 40px;
-  list-style: none;
+/* card */
+.card{
+  width:240px;height:160px;border-radius:14px;overflow:hidden;
+  box-shadow:0 10px 30px rgba(0,0,0,0.6);
+  flex:0 0 auto;position:relative;cursor:pointer;
+  transform-origin:center center;transition:transform .35s ease,box-shadow .35s,opacity .35s;
+  background:#111;
+}
+.card img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Active (center) card styling */
+.card.active{
+  transform:scale(1.12);
+  box-shadow:0 30px 60px rgba(0,0,0,0.7);
+  border:2px solid rgba(243,210,131,0.18);
 }
 
-.nav-links li {
-  font-size: 16px;
-  cursor: pointer;
-  transition: 0.3s;
+/* Slight dim for side cards */
+.card:not(.active){opacity:0.82;transform:scale(0.98)}
+
+/* RESPONSIVE */
+@media (max-width:1000px){
+  .info{width:48%;padding-left:14px}
+  .gallery-viewport{right:28px;transform:translateY(-50%);width:640px}
+}
+@media (max-width:780px){
+  .info{display:none}
+  .gallery-viewport{right:18px;bottom:30px;top:auto;transform:none;height:140px;width:92%}
+  .hero{padding-top:70px}
 }
 
-.nav-links li:hover,
-.nav-links .active {
-  color: #fbd28c;
-}
-
-/* BACKGROUND */
-.background {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-
-  background-size: cover;
-  background-position: center;
-  transition: opacity 1.2s ease, transform 1.2s ease;
-}
-
-/* HERO WRAPPER */
-.hero {
-  display: flex;
-  height: 100vh;
-  width: 100%;
-  position: relative;
-  padding-top: 90px;
-}
-
-/* LEFT THUMB SLIDER */
-.thumb-slider {
-  position: absolute;
-  left: 60px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 220px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.thumb-card {
-  width: 220px;
-  height: 130px;
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  position: relative;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.thumb-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.thumb-card:hover {
-  transform: scale(1.05);
-}
-
-.thumb-card.active {
-  transform: scale(1.15);
-  border: 2px solid #fbd28c;
-  opacity: 1;
-}
-
-/* RIGHT CONTENT */
-.info {
-  position: absolute;
-  right: 80px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: white;
-  width: 35%;
-}
-
-.info h1 {
-  font-size: 52px;
-  font-weight: 700;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 1s forwards;
-}
-
-.info p {
-  margin-top: 15px;
-  font-size: 18px;
-  line-height: 1.5;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 1s forwards;
-  animation-delay: 0.2s;
-}
-
-.rent-btn {
-  margin-top: 25px;
-  padding: 14px 32px;
-  border-radius: 30px;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 600;
-
-  background: #fbd28c;
-  color: black;
-  transition: 0.3s ease;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 1s forwards;
-  animation-delay: 0.4s;
-}
-
-.rent-btn:hover {
-  transform: scale(1.05);
-  background: #ffe1ad;
-}
-
-/* ANIMATIONS */
+/* simple fadeUp animation helper (used by JS via style) */
 @keyframes fadeUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity:0; transform: translateY(18px) }
+  to   { opacity:1; transform: translateY(0) }
 }
-

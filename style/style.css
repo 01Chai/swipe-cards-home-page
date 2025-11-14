@@ -1,110 +1,118 @@
-/* ---------- GENERAL ---------- */
-body {
-  margin: 0;
+/* === RESET & BASE === */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
   font-family: "Poppins", sans-serif;
-  background: #000;
-  color: #fff;
-  overflow-x: hidden;
+  background:#000;
+  color:#fff;
+  overflow:hidden;
 }
 
-.navbar {
-  width: 100%;
-  padding: 20px 40px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  backdrop-filter: blur(5px);
-  background: rgba(0,0,0,0.3);
-  position: fixed;
-  top: 0;
-  z-index: 10;
+/* NAVBAR */
+.navbar{
+  position:fixed;left:0;top:0;width:100%;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 48px;z-index:50;
+  background:rgba(0,0,0,0.28);backdrop-filter:blur(8px);
+}
+.logo{font-weight:700;letter-spacing:1px}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links li{cursor:pointer}
+.nav-links li.active,.nav-links li:hover{color:#d4af37}
+
+/* BACKGROUND (full screen, fades/zooms) */
+.background{
+  position:fixed;inset:0;z-index:0;
+  background-size:cover;background-position:center;
+  transition:opacity 900ms ease, transform 1100ms ease;
+  opacity:1;transform:scale(1);
+  will-change:opacity,transform;
+  filter: saturate(.95);
 }
 
-.nav-links {
-  display: flex;
-  gap: 35px;
-  list-style: none;
-  font-size: 15px;
+/* HERO layout */
+.hero{
+  position:relative;z-index:10;height:100vh;display:flex;align-items:center;padding:90px 80px;
 }
 
-/* ---------- HERO LAYOUT ---------- */
-.hero {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  padding: 0 60px;
-  position: relative;
+/* INFO (left side, centered vertically) */
+.info{
+  width:44%;padding-right:30px;
+}
+.info h1{
+  font-family:"Montserrat",sans-serif;font-size:48px;color:#d4af37;margin-bottom:14px;
+}
+.info p{font-size:18px;color:#e8e8e8;line-height:1.5;max-width:680px}
+.rent-btn{
+  margin-top:22px;padding:12px 30px;border-radius:28px;border:none;background:#d4af37;color:#000;font-weight:700;cursor:pointer;
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.rent-btn:hover{transform:scale(1.04);box-shadow:0 18px 40px rgba(212,175,55,.18)}
+
+/* GALLERY (right) */
+/* Portrait card sizing: width=160, height=240, gap=20 */
+/* viewport width = 160*3 + 20*2 = 520 */
+.gallery-viewport{
+  position:absolute;right:80px;top:50%;transform:translateY(-50%);
+  width:520px;height:260px;overflow:hidden;z-index:15;
+  pointer-events:auto;
 }
 
-.text-area {
-  flex: 1;
-  max-width: 450px;
+/* track holds cards horizontally */
+.gallery-track{
+  display:flex;align-items:center;height:100%;gap:20px;
+  transition:transform .6s cubic-bezier(.22,.9,.32,1);
+  will-change:transform;
 }
 
-.text-area h1 {
-  font-size: 55px;
-  margin-bottom: 10px;
+/* card portrait */
+.card{
+  width:160px;height:240px;border-radius:14px;overflow:hidden;background:#111;flex:0 0 auto;
+  box-shadow:0 12px 30px rgba(0,0,0,0.6);cursor:pointer;position:relative;
+  transform-origin:center center;transition:transform .45s ease,box-shadow .45s,opacity .35s;
+  display:flex;flex-direction:column;
+}
+.card img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* small overlay title on each card */
+.card .label{
+  position:absolute;left:12px;bottom:12px;background:rgba(0,0,0,0.45);
+  padding:6px 10px;border-radius:8px;font-weight:600;font-size:13px;color:#fff;
+  backdrop-filter: blur(4px);
 }
 
-.text-area p {
-  font-size: 18px;
-  opacity: 0.8;
-  margin-bottom: 25px;
+/* 3D effect:
+   - center card has scale and sharp shadow
+   - immediate neighbors tilt and move back slightly (simulate translateZ)
+*/
+.card.active{
+  transform: translateZ(30px) scale(1.08);
+  box-shadow:0 30px 60px rgba(0,0,0,0.75);
+  border:2px solid rgba(212,175,55,0.14);
+}
+.card.left{
+  transform: translateX(-18px) translateZ(-20px) rotateY(10deg) scale(.96);
+  opacity:0.9;
+}
+.card.right{
+  transform: translateX(18px) translateZ(-20px) rotateY(-10deg) scale(.96);
+  opacity:0.9;
+}
+.card:not(.active):not(.left):not(.right){
+  transform: translateZ(-40px) scale(.92);opacity:0.75;
+  filter:brightness(.85);
 }
 
-.rent-btn {
-  background: #ffcc00;
-  padding: 12px 30px;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: 0.3s ease;
+/* responsive tweaks */
+@media (max-width:1000px){
+  .info{width:50%}
+  .gallery-viewport{right:28px;width:420px}
+}
+@media (max-width:780px){
+  .info{display:none}
+  .gallery-viewport{right:18px;bottom:28px;top:auto;transform:none;height:200px;width:92%}
+  .hero{padding-top:80px}
 }
 
-.rent-btn:hover {
-  transform: scale(1.07);
-}
-
-/* ---------- RIGHT SLIDER ---------- */
-.slider-container {
-  width: 480px;
-  overflow: hidden;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.slider-track {
-  display: flex;
-  gap: 20px;
-  transition: transform 0.6s ease;
-}
-
-.card {
-  width: 220px;
-  height: 300px;
-  background: #111;
-  border-radius: 14px;
-  overflow: hidden;
-  flex-shrink: 0;
-  transform: rotate(0deg);        /* Upright cards */
-  transition: 0.3s ease;
-  cursor: pointer;
-}
-
-.card img {
-  width: 100%;
-  height: 65%;
-  object-fit: cover;
-}
-
-.card h3 {
-  text-align: center;
-  margin-top: 10px;
-}
-
-/* Active center card */
-.card.active {
-  transform: scale(1.15);
-  border: 2px solid #ffaa00;
-}
+/* fadeUp helper used by JS-controlled inline animation */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}

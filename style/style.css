@@ -103,6 +103,33 @@ body{
   filter:brightness(.85);
 }
 
+/* -- Overlay used for scaling a card up into the background -- */
+.becoming-overlay {
+  position:fixed;
+  left:0;top:0;
+  width:160px; height:240px; /* initial portrait size, JS will set exact position */
+  transform-origin: center center;
+  z-index:60;
+  pointer-events:none;
+  transition: transform 800ms cubic-bezier(.22,.9,.32,1), width 800ms ease, height 800ms ease, left 800ms ease, top 800ms ease, border-radius 800ms ease, filter 800ms ease, opacity 700ms ease;
+  will-change:transform,left,top,width,height,opacity,filter;
+}
+
+/* final state when overlay expands to viewport (becomes background) */
+.becoming-overlay.expand {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  transform: none !important;
+  border-radius: 0 !important;
+  filter: blur(0px) saturate(1) !important;
+  opacity: 1 !important;
+}
+
+/* while overlay is expanding, dim other UI slightly */
+.body-dimming .info { opacity: 0.85; transition: opacity 300ms ease; }
+
 /* responsive tweaks */
 @media (max-width:1000px){
   .info{width:50%}

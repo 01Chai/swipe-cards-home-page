@@ -1,11 +1,12 @@
-/* Portrait 3D carousel
-   - builds cards + clones for smooth infinite loop
-   - shows exactly 3 portrait cards at a time (center is active)
-   - center card fades/zooms into full-screen background
-   - supports pointer drag (mouse/touch), click-to-jump, keyboard, autoplay
+/* Portrait 3D carousel - fixed & polished
+   - main card sits LEFT
+   - when swiped, the active (left) card visually expands to become background
+   - overlay technique used to avoid DOM-jumps
+   - smooth infinite looping (clones + snap) with no visible jump
+   - text reveal synced after the visual transition
 */
 
-/* ========== DATA (replace with your AI images later) ========== */
+/* ========== DATA ========== */
 const cars = [
   { name: "Lamborghini Aventador", desc: "V12 power meets timeless design. The Aventador defines pure performance.", img: "https://images.unsplash.com/photo-1619946794135-5bc917a2772f?q=80&w=1600" },
   { name: "Lamborghini Huracán",   desc: "Compact, fierce, and precision engineered for heart-pounding control.", img: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?q=80&w=1600" },
@@ -20,13 +21,14 @@ const bg = document.getElementById('bg');
 const titleEl = document.getElementById('carTitle');
 const descEl = document.getElementById('carDesc');
 const rentBtn = document.getElementById('rentBtn');
+const galleryViewport = document.querySelector('.gallery-viewport');
 
 const CARD_WIDTH = 160;
 const GAP = 20;
 const STEP = CARD_WIDTH + GAP;
 const VIEWPORT_WIDTH = CARD_WIDTH * 3 + GAP * 2; // 520
 
-let index = 1;             // start index in track (after cloning): 1 => first real card
+let index = 1;             // track child index (we'll keep clone at 0)
 let isDragging = false;
 let startX = 0;
 let deltaX = 0;
@@ -59,11 +61,8 @@ function makeCardElement(car, isClone) {
   el.innerHTML = `<img src="${car.img}" alt="${car.name}"/><div class="label">${car.name}</div>`;
   // click to jump
   el.addEventListener('click', () => {
-    // compute real index (index in cars array)
-    // track children: [cloneLast, ...real..., cloneFirst]
     const all = Array.from(track.children);
     const clickedIndex = all.indexOf(el);
-    // if clicked on clone, translate to corresponding real later via logic
     jumpTo(clickedIndex);
     resetAutoplay();
   });
@@ -71,10 +70,9 @@ function makeCardElement(car, isClone) {
 }
 
 /* ========== HELPERS ========== */
+/* Align the active card to the LEFT inside the viewport (desiredLeft = 0) */
 function getTranslateXForIndex(i) {
-  // we want card at track child index i to sit centered in the viewport area but flush to the right:
-  // desiredLeft = VIEWPORT_WIDTH - CARD_WIDTH (make active card stick to right within viewport)
-  const desiredLeft = VIEWPORT_WIDTH - CARD_WIDTH;
+  const desiredLeft = 0; // <<<<<< active card sits at left edge of the viewport
   return -(i * STEP - desiredLeft);
 }
 
@@ -83,94 +81,186 @@ function setTrackTransform(x, withTransition = true) {
   track.style.transform = `translateX(${x}px)`;
 }
 
-/* ========== UPDATE visuals: active, neighbor classes, background, text ========== */
+/* ========== VISUALS ========== */
 function updateVisuals() {
-  // normalize index within track children
   const children = Array.from(track.children);
-  // mark classes
   children.forEach(el => el.classList.remove('active', 'left', 'right'));
   const activeEl = children[index];
   if (activeEl) activeEl.classList.add('active');
-  // mark left and right neighbors
   const leftEl = children[index - 1];
   const rightEl = children[index + 1];
   if (leftEl) leftEl.classList.add('left');
   if (rightEl) rightEl.classList.add('right');
+}
 
-  // update background smoothly (fade+zoom)
-  const realIndex = (index - 1 + cars.length) % cars.length; // maps track index to cars array
+/* update background & text AFTER the main visual transition completes */
+function updateBackgroundAndTextAfterDelay() {
+  // compute realIndex mapping track child -> cars array
+  const realIndex = (index - 1 + cars.length) % cars.length;
+  // fade to new background
   fadeToBackground(cars[realIndex].img);
-
-  // update text with staggered animation
+  // update text with staggered animation (start slightly after visual settle)
   titleEl.style.animation = 'none';
   descEl.style.animation = 'none';
   rentBtn.style.animation = 'none';
-
   titleEl.textContent = cars[realIndex].name;
   descEl.textContent = cars[realIndex].desc;
-
-  // trigger fadeUp with tiny delay so CSS applies
   setTimeout(() => {
     titleEl.style.animation = 'fadeUp 700ms forwards';
     descEl.style.animation = 'fadeUp 700ms 160ms forwards';
     rentBtn.style.animation = 'fadeUp 700ms 320ms forwards';
-  }, 40);
+  }, 420); // delayed so text doesn't pop before background
 }
 
 /* smooth background swap */
 function fadeToBackground(url) {
-  // fade out
   bg.style.opacity = 0;
   setTimeout(() => {
     bg.style.backgroundImage = `url(${url})`;
     bg.style.transform = 'scale(1.04)';
     bg.style.opacity = 1;
-    // return scale to normal slowly
     setTimeout(() => { bg.style.transform = 'scale(1)'; }, 900);
   }, 300);
 }
 
-/* ========== NAVIGATION: next / prev / jump / loop handling ========== */
+/* ========== CORE: swipe -> visually scale a card into background using overlay ========== */
+
+function createOverlayFromCard(cardEl) {
+  // get image src
+  const imgEl = cardEl.querySelector('img');
+  const src = imgEl ? imgEl.src : null;
+  // get rect of card to position overlay exactly
+  const rect = cardEl.getBoundingClientRect();
+  const overlay = document.createElement('div');
+  overlay.className = 'becoming-overlay';
+  // set background image styling
+  overlay.style.backgroundImage = `url(${src})`;
+  overlay.style.backgroundSize = 'cover';
+  overlay.style.backgroundPosition = 'center';
+  overlay.style.left = `${rect.left}px`;
+  overlay.style.top = `${rect.top}px`;
+  overlay.style.width = `${rect.width}px`;
+  overlay.style.height = `${rect.height}px`;
+  overlay.style.borderRadius = window.getComputedStyle(cardEl).borderRadius || '14px';
+  overlay.style.opacity = '1';
+  document.body.appendChild(overlay);
+  // force layout
+  overlay.getBoundingClientRect();
+  return overlay;
+}
+
+function expandOverlayToViewport(overlay, finalCallback) {
+  // add a small class to body to dim UI (optional)
+  document.documentElement.classList.add('body-dimming');
+  // expand
+  requestAnimationFrame(() => {
+    overlay.classList.add('expand');
+  });
+  // when done, call callback
+  const onEnd = () => {
+    overlay.removeEventListener('transitionend', onEnd);
+    document.documentElement.classList.remove('body-dimming');
+    finalCallback && finalCallback();
+    // remove overlay after tiny delay so background replacement is seamless
+    setTimeout(() => {
+      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+    }, 100);
+  };
+  overlay.addEventListener('transitionend', onEnd);
+}
+
+/* ========== NAVIGATION & loop handling ========== */
+
 function next() {
+  // create visual overlay from the active (left) card that will become background
+  const children = Array.from(track.children);
+  const activeEl = children[index];
+  const overlay = createOverlayFromCard(activeEl);
+
+  // start overlay expansion slightly before track moves for smoother perception
+  expandOverlayToViewport(overlay, () => {
+    // set background to card's image once overlay finished expanding
+    const img = activeEl.querySelector('img').src;
+    bg.style.opacity = 0;
+    setTimeout(() => {
+      bg.style.backgroundImage = `url(${img})`;
+      bg.style.transform = 'scale(1.04)';
+      bg.style.opacity = 1;
+      setTimeout(() => { bg.style.transform = 'scale(1)'; }, 900);
+    }, 40);
+  });
+
+  // move track to next index (so remaining cards slide left)
   index++;
   setTrackTransform(getTranslateXForIndex(index), true);
+
+  // handle loop snapping after transition
   handleLoopAfterTransition();
 }
 
 function prev() {
+  // similar visual effect if you want prev to become background (optional)
+  const children = Array.from(track.children);
+  const activeEl = children[index];
+  const overlay = createOverlayFromCard(activeEl);
+
+  expandOverlayToViewport(overlay, () => {
+    const img = activeEl.querySelector('img').src;
+    bg.style.opacity = 0;
+    setTimeout(() => {
+      bg.style.backgroundImage = `url(${img})`;
+      bg.style.transform = 'scale(1.04)';
+      bg.style.opacity = 1;
+      setTimeout(() => { bg.style.transform = 'scale(1)'; }, 900);
+    }, 40);
+  });
+
   index--;
   setTrackTransform(getTranslateXForIndex(index), true);
   handleLoopAfterTransition();
 }
 
 function jumpTo(trackChildIndex) {
-  // set index to clicked element's index in track
+  // small safeguard
+  if (trackChildIndex < 0 || trackChildIndex >= track.children.length) return;
   index = trackChildIndex;
   setTrackTransform(getTranslateXForIndex(index), true);
   handleLoopAfterTransition();
 }
 
-/* If we hit clones, snap to the real counterpart without visible jump */
+/* If we hit clones, snap to the real counterpart WITHOUT visual jump.
+   We wait for the track transition to end, then silently reset transform (no transition).
+*/
 function handleLoopAfterTransition() {
-  // wait for transition to end
   const onTransitionEnd = () => {
     track.removeEventListener('transitionend', onTransitionEnd);
     const children = Array.from(track.children);
     const firstRealIndex = 1;
     const lastRealIndex = cars.length;
+    let snapped = false;
+
     if (index === 0) {
-      // jumped to cloneLast -> snap to last real
       index = lastRealIndex;
       setTrackTransform(getTranslateXForIndex(index), false);
+      snapped = true;
     } else if (index === children.length - 1) {
-      // jumped to cloneFirst -> snap to first real
       index = firstRealIndex;
       setTrackTransform(getTranslateXForIndex(index), false);
+      snapped = true;
     }
+
+    // update card classes (active/left/right) AFTER any snapping
     updateVisuals();
+
+    // update background and text only after the visuals have settled slightly
+    // use a short timeout so text doesn't animate while track is still moving
+    setTimeout(() => {
+      updateBackgroundAndTextAfterDelay();
+    }, snapped ? 80 : 220);
   };
+
   track.addEventListener('transitionend', onTransitionEnd);
-  // optimistic update of visuals to immediate state (active classes will update after possible snap)
+  // update visuals optimistically (so classes change immediately while track animates)
   updateVisuals();
 }
 
@@ -180,7 +270,6 @@ function onPointerDown(e) {
   startX = e.clientX;
   deltaX = 0;
   track.style.transition = 'none';
-  // pause autoplay while interacting
   pauseAutoplay();
 }
 function onPointerMove(e) {
@@ -192,13 +281,15 @@ function onPointerMove(e) {
 function onPointerUp(e) {
   if (!isDragging) return;
   isDragging = false;
-  // determine swipe threshold
   if (Math.abs(deltaX) > 60) {
+    // swipe left -> go next (negative delta)
     if (deltaX < 0) next();
     else prev();
   } else {
-    // small movement -> snap back
+    // snap back
     setTrackTransform(getTranslateXForIndex(index), true);
+    // after snapping visually, refresh text/background
+    handleLoopAfterTransition();
   }
   deltaX = 0;
   resetAutoplay();
@@ -218,8 +309,7 @@ function resetAutoplay() { stopAutoplay(); startAutoplay(); }
 /* ========== INIT ========== */
 function init() {
   buildTrack();
-  // set initial translate to first real card (track child index 1)
-  index = 1;
+  index = 1; // first real item sits at child index 1
   setTrackTransform(getTranslateXForIndex(index), false);
   updateVisuals();
   // pointer events on track for dragging
@@ -227,14 +317,15 @@ function init() {
   window.addEventListener('pointermove', onPointerMove);
   window.addEventListener('pointerup', onPointerUp);
   // pause autoplay on hover (desktop)
-  const viewport = document.querySelector('.gallery-viewport');
-  viewport.addEventListener('mouseenter', pauseAutoplay);
-  viewport.addEventListener('mouseleave', resetAutoplay);
+  galleryViewport.addEventListener('mouseenter', pauseAutoplay);
+  galleryViewport.addEventListener('mouseleave', resetAutoplay);
   // keyboard support
   window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight') { next(); resetAutoplay(); }
     if (e.key === 'ArrowLeft')  { prev(); resetAutoplay(); }
   });
+  // initial background and text
+  setTimeout(() => { updateBackgroundAndTextAfterDelay(); }, 80);
   // start autoplay
   startAutoplay();
   // recompute on resize

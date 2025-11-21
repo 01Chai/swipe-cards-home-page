@@ -1,146 +1,101 @@
 const cars = [
-  { name: 'Lamborghini Aventador', desc: 'V12 power meets timeless design. The Aventador defines pure performance with iconic lines and raw energy.', img: 'https://images.unsplash.com/photo-1619946794135-5bc917a2772f?q=80&w=1600' },
-  { name: 'Lamborghini Huracán', desc: 'Compact, fierce, and precision engineered for heart-pounding control.', img: 'https://images.unsplash.com/photo-1592194996308-7b43878e84a6?q=80&w=1600' },
-  { name: 'Lamborghini Urus', desc: 'The world\'s first Super SUV — merging luxury, space, and speed.', img: 'https://images.unsplash.com/photo-1610395219791-7c03d32a7ece?q=80&w=1600' },
-  { name: 'Lamborghini Gallardo', desc: 'A timeless classic that redefined the modern supercar era.', img: 'https://images.unsplash.com/photo-1618477462327-6f909fcdf130?q=80&w=1600' },
-  { name: 'Lamborghini Revuelto', desc: 'A futuristic hybrid V12 redefining luxury performance.', img: 'https://images.unsplash.com/photo-1705502823166-6fe39a3cff53?q=80&w=1600' }
+  {n:"Aventador SVJ",d:"770 HP • Final V12 masterpiece",img:"https://images.unsplash.com/photo-1619946794135-5bc917a2772f?q=80&w=1800&auto=format&fit=crop"},
+  {n:"Huracán STO",d:"640 HP • Track-honed perfection",img:"https://images.unsplash.com/photo-1592194996308-7b43878e84a6?q=80&w=1800&auto=format&fit=crop"},
+  {n:"Urus Performante",d:"666 HP • Super SUV royalty",img:"https://images.unsplash.com/photo-1610395219791-7c03d32a7ece?q=80&w=1800&auto=format&fit=crop"},
+  {n:"Revuelto",d:"1015 HP • The hybrid era begins",img:"https://images.unsplash.com/photo-1705502823166-6fe39a3cff53?q=80&w=1800&auto=format&fit=crop"},
+  {n:"Gallardo",d:"V10 legend • Forever",img:"https://images.unsplash.com/photo-1618477462327-6f909fcdf130?q=80&w=1800&auto=format&fit=crop"}
 ];
 
 const track = document.getElementById('track');
 const bg = document.getElementById('bg');
-const titleEl = document.getElementById('title');
-const descEl = document.getElementById('desc');
-const prevBtn = document.getElementById('prev');
-const nextBtn = document.getElementById('next');
+const title = document.getElementById('title');
+const desc = document.getElementById('desc');
+const btn = document.querySelector('.info button');
+let current = 0;
+let expanding = null;
 
-const CARD_WIDTH = 160;
-const GAP = 20;
-const STEP = CARD_WIDTH + GAP;
-let isAnimating = false;
-let overlay = null;
-let autoplayTimer = null;
-const AUTOPLAY_MS = 5000;
-
-function buildTrack() {
-  track.innerHTML = '';
-  cars.forEach(car => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `<img src="${car.img}" alt="${car.name}"><div class="label">${car.name}</div>`;
-    track.appendChild(card);
-  });
-  updateActiveClass();
-  updateText(cars[0]);
-  bg.style.backgroundImage = `url(${cars[0].img})`;
+function init() {
+  track.innerHTML = cars.map((c,i) => `
+    <div class="card" data-index="${i}">
+      <img src="${c.img}" alt="${c.n}">
+      <div class="label">${c.n}</div>
+    </div>
+  `).join('');
+  updateActive();
+  showText(0);
 }
 
-function updateActiveClass() {
-  Array.from(track.children).forEach((card, index) => {
-    card.classList.toggle('active', index === 0);
+function updateActive() {
+  track.querySelectorAll('.card').forEach((c,i) => {
+    c.classList.toggle('active', i === current);
   });
 }
 
-function updateText(car) {
-  gsap.to([titleEl, descEl], { opacity: 0, y: 20, duration: 0.3, onComplete: () => {
-    titleEl.textContent = car.name;
-    descEl.textContent = car.desc;
-    gsap.to([titleEl, descEl], { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out' });
-  }});
+function showText(idx) {
+  const car = cars[idx];
+  title.textContent = car.n;
+  desc.textContent = car.d;
+  gsap.fromTo([title, desc, btn], 
+    {opacity:0, y:50},
+    {opacity:1, y:0, duration:1.8, stagger:0.3, ease:"power2.out"}
+  );
 }
 
-function createOverlay(cardEl) {
-  if (overlay) overlay.remove();
+function explodeAndRemove(cardEl, direction = "next") {
+  if (expanding) return;
   const rect = cardEl.getBoundingClientRect();
-  overlay = document.createElement('div');
-  overlay.className = 'overlay';
-  overlay.style.left = rect.left + 'px';
-  overlay.style.top = rect.top + 'px';
-  overlay.style.width = rect.width + 'px';
-  overlay.style.height = rect.height + 'px';
-  overlay.style.backgroundImage = `url(${cardEl.querySelector('img').src})`;
-  document.body.appendChild(overlay);
-  overlay.offsetHeight; // Force reflow
-  return overlay;
-}
+  const img = cardEl.querySelector('img').src;
 
-function goNext() {
-  if (isAnimating) return;
-  isAnimating = true;
-  clearInterval(autoplayTimer);
+  expanding = document.createElement('div');
+  expanding.className = 'expand';
+  expanding.style.cssText = `left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;background-image:url(${img})`;
+  document.body.appendChild(expanding);
 
-  const leavingCard = track.children[0];
-  const ov = createOverlay(leavingCard);
+  // Hide the original card immediately
+  cardEl.style.opacity = 0;
 
-  const tl = gsap.timeline({ onComplete: () => {
-    cars.push(cars.shift());
-    track.appendChild(track.children[0]);
-    gsap.set(track, { x: 0 });
-    updateActiveClass();
-    updateText(cars[0]);
-    bg.style.backgroundImage = `url(${cars[0].img})`;
-    if (overlay) overlay.remove();
-    overlay = null;
-    isAnimating = false;
-    autoplayTimer = setInterval(goNext, AUTOPLAY_MS);
-  }});
+  const tl = gsap.timeline({
+    onComplete: () => {
+      if (direction === "next") {
+        current = (current + 1) % cars.length;
+        track.appendChild(track.children[0]);
+      } else {
+        current = (current - 1 + cars.length) % cars.length;
+        track.insertBefore(track.lastElementChild, track.firstElementChild);
+      }
+      gsap.set(track, {x:0});
+      updateActive();
+      showText(current);
+      bg.style.backgroundImage = `url(${cars[current].img})`;
+      expanding.remove();
+      expanding = null;
+      track.querySelectorAll('.card').forEach(c => c.style.opacity = 1);
+    }
+  });
 
-  tl.to(track, { x: -STEP, duration: 0.8, ease: 'power3.out' }, 0);
-  tl.to(ov, { 
-    left: 0, 
-    top: 0, 
-    width: '100vw', 
-    height: '100vh', 
-    borderRadius: 0, 
-    duration: 1.0, 
-    ease: 'power3.inOut' 
+  if (direction === "next") {
+    tl.to(track, {x: -205, duration: 1.6, ease: "power3.inOut"}, 0.3);
+  } else {
+    gsap.set(track, {x: -205});
+    tl.to(track, {x: 0, duration: 1.6, ease: "power3.inOut"}, 0.3);
+  }
+
+  tl.to(expanding, {
+    left: 0, top: 0, width: "100vw", height: "100vh",
+    borderRadius: 0,
+    duration: 2.2,
+    ease: "power3.inOut"
   }, 0);
+
+  tl.to(expanding, {scale: 1.08}, 1.2);
+  tl.to(expanding, {scale: 1, duration: 1}, 1.8);
 }
 
-function goPrev() {
-  if (isAnimating) return;
-  isAnimating = true;
-  clearInterval(autoplayTimer);
+document.getElementById('next').onclick = () => explodeAndRemove(track.children[0], "next");
+document.getElementById('prev').onclick = () => {
+  track.insertBefore(track.lastElementChild, track.firstElementChild);
+  explodeAndRemove(track.children[0], "prev");
+};
 
-  // Move last card to front
-  const lastCard = track.lastElementChild;
-  track.insertBefore(lastCard, track.firstElementChild);
-  gsap.set(track, { x: -STEP });
-
-  const leavingCard = track.children[0];
-  const ov = createOverlay(leavingCard);
-
-  const tl = gsap.timeline({ onComplete: () => {
-    cars.unshift(cars.pop());
-    track.appendChild(track.children[0]);
-    gsap.set(track, { x: 0 });
-    updateActiveClass();
-    updateText(cars[0]);
-    bg.style.backgroundImage = `url(${cars[0].img})`;
-    if (overlay) overlay.remove();
-    overlay = null;
-    isAnimating = false;
-    autoplayTimer = setInterval(goNext, AUTOPLAY_MS);
-  }});
-
-  tl.to(track, { x: 0, duration: 0.8, ease: 'power3.out' }, 0);
-  tl.to(ov, { 
-    left: 0, 
-    top: 0, 
-    width: '100vw', 
-    height: '100vh', 
-    borderRadius: 0, 
-    duration: 1.0, 
-    ease: 'power3.inOut' 
-  }, 0);
-}
-
-prevBtn.addEventListener('click', goPrev);
-nextBtn.addEventListener('click', goNext);
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowLeft') goPrev();
-  if (e.key === 'ArrowRight') goNext();
-});
-
-// Init
-buildTrack();
-autoplayTimer = setInterval(goNext, AUTOPLAY_MS);
+init();
+setInterval(() => document.getElementById('next').click(), 7000);

@@ -3,31 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LAMBORGHINI</title>
-  <link rel="stylesheet" href="style/style.css">
+  <title>Lambo Rentals</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-  
 <body>
+  <!-- Background from carousel -->
+  <div id="bg"></div>
 
-  <div id="bg" class="bg"></div>
-
-  <main class="hero">
-    <div class="info">
-      <h1 id="title"></h1>
-      <p id="desc"></p>
-      <button>Rent Now</button>
+  <!-- Left: Live Carousel (like video's site preview) -->
+  <div class="carousel">
+    <button id="prev">‹</button>
+    <div class="wrapper">
+      <div id="track" class="track"></div>
     </div>
+    <button id="next">›</button>
+  </div>
 
-    <div class="carousel">
-      <button id="prev">‹</button>
-      <div class="viewport">
-        <div id="track" class="track"></div>
-      </div>
-      <button id="next">›</button>
+  <!-- Right: Terminal Overlay (like video's code block) -->
+  <div class="terminal">
+    <div class="term-header">
+      <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      <span>bash --lambo-rentals.js</span>
     </div>
-  </main>
+    <pre id="code-block">// POST /rent-car
+app.post('/translate', (req, res) => {
+  const { carModel, descText, lang } = req.body;
+  translate(descText, { to: lang }).then(result => {
+    res.json({
+      background: `url(${carModel}.jpg)`,
+      translatedDesc: result.text,
+      cta: 'Rent luxury now'
+    });
+  });
+});</pre>
+    <div class="cta-overlay">
+      <h2>RENT LUXURY</h2>
+      <p>Full-stack Lambo experience</p>
+      <a href="#">Link in bio</a>
+    </div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="js/main.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>

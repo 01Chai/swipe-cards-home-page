@@ -1,47 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lamborghini Rentals — Hero</title>
-  <link rel="stylesheet" href="style/style.css" />
-  <!-- Tilt.js for sexy hover effect -->
+  <link rel="stylesheet" href="style/style.css">
   <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
 </head>
 <body>
-
   <nav class="navbar">
     <div class="logo">LAMBORGHINI RENTALS</div>
-    <ul class="nav-links">
-      <li class="active">Home</li>
-      <li>Models</li>
-      <li>Contact</li>
-    </ul>
+    <ul class="nav-links"><li class="active">Home</li><li>Models</li><li>Contact</li></ul>
   </nav>
 
-  <!-- Full-screen background -->
-  <div id="bg" class="background" aria-hidden="true"></div>
+  <div id="bg" class="background"></div>
 
   <main class="hero">
     <aside class="info">
-      <h1 id="carTitle">Lamborghini Aventador</h1>
-      <p id="carDesc">V12 power meets timeless design.</p>
+      <h1 id="carTitle"></h1>
+      <p id="carDesc"></p>
       <button class="rent-btn">Rent Now</button>
     </aside>
 
-    <section class="gallery-viewport" aria-label="Lamborghini carousel">
-      <button id="prevBtn" class="carousel-btn left" aria-label="Previous">‹</button>
-
-      <div class="gallery-frame">
-        <div class="gallery-track" id="track"></div>
-      </div>
-
-      <button id="nextBtn" class="carousel-btn right" aria-label="Next">›</button>
+    <section class="gallery-viewport">
+      <button id="prevBtn" class="carousel-btn left">‹</button>
+      <div class="gallery-frame"><div class="gallery-track" id="track"></div></div>
+      <button id="nextBtn" class="carousel-btn right">›</button>
     </section>
   </main>
 
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

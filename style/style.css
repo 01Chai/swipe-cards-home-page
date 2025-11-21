@@ -1,145 +1,89 @@
-/* === RESET & BASE === */
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{
-  font-family: "Poppins", sans-serif;
-  background:#000;
-  color:#fff;
-  overflow:hidden;
-}
+html,body{height:100%;font-family:"Poppins",sans-serif;background:#000;color:#fff;overflow:hidden}
 
-/* NAVBAR */
 .navbar{
-  position:fixed;left:0;top:0;width:100%;
+  position:fixed;top:0;left:0;width:100%;padding:20px 48px;
   display:flex;justify-content:space-between;align-items:center;
-  padding:20px 48px;z-index:50;
-  background:rgba(0,0,0,0.28);backdrop-filter:blur(8px);
+  z-index:50;background:rgba(0,0,0,0.28);backdrop-filter:blur(8px);
 }
 .logo{font-weight:700;letter-spacing:1px}
 .nav-links{display:flex;gap:28px;list-style:none}
-.nav-links li{cursor:pointer}
+.nav-links li{cursor:pointer;transition:.3s}
 .nav-links li.active,.nav-links li:hover{color:#d4af37}
 
-/* BACKGROUND (full screen, fades/zooms) */
 .background{
-  position:fixed;inset:0;z-index:0;
-  background-size:cover;background-position:center;
-  transition:opacity 900ms ease, transform 1100ms ease;
-  opacity:1;transform:scale(1);
-  will-change:opacity,transform;
-  filter: saturate(.95);
+  position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;
+  transition:opacity .9s ease;opacity:1;filter:saturate(.95);
+}
+.background::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at center,transparent 20%,rgba(0,0,0,0.65) 100%);
+  pointer-events:none;
 }
 
-/* HERO layout */
 .hero{
   position:relative;z-index:10;height:100vh;display:flex;align-items:center;padding:90px 80px;
 }
-
-/* INFO (left side, centered vertically) */
-.info{
-  width:44%;padding-right:30px;
-}
-.info h1{
-  font-family:"Montserrat",sans-serif;font-size:48px;color:#d4af37;margin-bottom:14px;
-}
+.info{width:44%;padding-right:30px}
+.info h1{font-family:"Montserrat",sans-serif;font-size:48px;color:#d4af37;margin-bottom:14px}
 .info p{font-size:18px;color:#e8e8e8;line-height:1.5;max-width:680px}
 .rent-btn{
-  margin-top:22px;padding:12px 30px;border-radius:28px;border:none;background:#d4af37;color:#000;font-weight:700;cursor:pointer;
-  transition:transform .2s ease,box-shadow .2s ease;
+  margin-top:22px;padding:14px 36px;border-radius:32px;border:none;
+  background:#d4af37;color:#000;font-weight:700;cursor:pointer;font-size:16px;
+  transition:.3s;letter-spacing:0.5px;
 }
-.rent-btn:hover{transform:scale(1.04);box-shadow:0 18px 40px rgba(212,175,55,.18)}
+.rent-btn:hover{transform:scale(1.05);box-shadow:0 20px 40px rgba(212,175,55,.25)}
 
-/* GALLERY (right) */
-/* Portrait card sizing: width=160, height=240, gap=20 */
-/* viewport width = 160*3 + 20*2 = 520 */
 .gallery-viewport{
   position:absolute;right:80px;top:50%;transform:translateY(-50%);
-  width:520px;height:260px;overflow:hidden;z-index:15;
-  pointer-events:auto;
+  width:520px;height:260px;display:flex;align-items:center;gap:12px;z-index:15;
 }
-
-/* track holds cards horizontally */
+.gallery-frame{width:520px;height:260px;overflow:hidden;border-radius:6px;position:relative}
 .gallery-track{
-  display:flex;align-items:center;height:100%;gap:20px;
-  transition:transform .6s cubic-bezier(.22,.9,.32,1);
-  will-change:transform;
+  display:flex;gap:20px;height:100%;will-change:transform;
+  animation:float 16s ease-in-out infinite;
+}
+.gallery-viewport:hover .gallery-track{animation-play-state:paused}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
 }
 
-/* card portrait */
 .card{
-  width:160px;height:240px;border-radius:14px;overflow:hidden;background:#111;flex:0 0 auto;
-  box-shadow:0 12px 30px rgba(0,0,0,0.6);cursor:pointer;position:relative;
-  transform-origin:center center;transition:transform .45s ease,box-shadow .45s,opacity .35s;
-  display:flex;flex-direction:column;
+  width:160px;height:240px;border-radius:14px;overflow:hidden;background:#111;
+  flex:0 0 auto;box-shadow:0 12px 30px rgba(0,0,0,0.6);cursor:pointer;position:relative;
 }
-.card img{width:100%;height:100%;object-fit:cover;display:block}
-
-/* small overlay title on each card */
+.card img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
 .card .label{
-  position:absolute;left:12px;bottom:12px;background:rgba(0,0,0,0.45);
-  padding:6px 10px;border-radius:8px;font-weight:600;font-size:13px;color:#fff;
-  backdrop-filter: blur(4px);
+  position:absolute;left:12px;bottom:12px;background:rgba(0,0,0,0.5);
+  padding:6px 10px;border-radius:8px;font-weight:600;font-size:13px;
+  backdrop-filter:blur(4px);
 }
 
-/* 3D effect:
-   - center card has scale and sharp shadow
-   - immediate neighbors tilt and move back slightly (simulate translateZ)
-*/
-.card.active{
-  transform: translateZ(30px) scale(1.08);
-  box-shadow:0 30px 60px rgba(0,0,0,0.75);
-  border:2px solid rgba(212,175,55,0.14);
-}
-.card.left{
-  transform: translateX(-18px) translateZ(-20px) rotateY(10deg) scale(.96);
-  opacity:0.9;
-}
-.card.right{
-  transform: translateX(18px) translateZ(-20px) rotateY(-10deg) scale(.96);
-  opacity:0.9;
-}
-.card:not(.active):not(.left):not(.right){
-  transform: translateZ(-40px) scale(.92);opacity:0.75;
-  filter:brightness(.85);
+/* Golden glow only on center card */
+.card.center{
+  box-shadow:0 0 30px rgba(212,175,55,0.6),0 12px 40px rgba(0,0,0,0.8);
+  transform:translateY(-8px);
 }
 
-/* -- Overlay used for scaling a card up into the background -- */
-.becoming-overlay {
-  position:fixed;
-  left:0;top:0;
-  width:160px; height:240px; /* initial portrait size, JS will set exact position */
-  transform-origin: center center;
-  z-index:60;
-  pointer-events:none;
-  transition: transform 800ms cubic-bezier(.22,.9,.32,1), width 800ms ease, height 800ms ease, left 800ms ease, top 800ms ease, border-radius 800ms ease, filter 800ms ease, opacity 700ms ease;
-  will-change:transform,left,top,width,height,opacity,filter;
+/* Expanding overlay */
+.becoming-overlay{
+  position:fixed;background-size:cover;background-position:center;
+  border-radius:14px;box-shadow:0 30px 80px rgba(0,0,0,0.6);
+  pointer-events:none;z-index:60;
 }
 
-/* final state when overlay expands to viewport (becomes background) */
-.becoming-overlay.expand {
-  left: 0 !important;
-  top: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  transform: none !important;
-  border-radius: 0 !important;
-  filter: blur(0px) saturate(1) !important;
-  opacity: 1 !important;
+/* Buttons */
+.carousel-btn{
+  width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,0.5);
+  border:none;color:#fff;font-size:28px;cursor:pointer;z-index:70;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);transition:.2s;
 }
+.carousel-btn:hover{transform:scale(1.08);background:rgba(0,0,0,0.7)}
 
-/* while overlay is expanding, dim other UI slightly */
-.body-dimming .info { opacity: 0.85; transition: opacity 300ms ease; }
-
-/* responsive tweaks */
-@media (max-width:1000px){
-  .info{width:50%}
-  .gallery-viewport{right:28px;width:420px}
-}
-@media (max-width:780px){
+/* Responsive */
+@media(max-width:1000px){.info{width:50%}.gallery-viewport{right:28px;width:92%}}
+@media(max-width:780px){
   .info{display:none}
-  .gallery-viewport{right:18px;bottom:28px;top:auto;transform:none;height:200px;width:92%}
-  .hero{padding-top:80px}
+  .gallery-viewport{right:18px;bottom:28px;top:auto;transform:none;width:92%;height:200px}
 }
-
-/* fadeUp helper used by JS-controlled inline animation */
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}

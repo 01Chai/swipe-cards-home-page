@@ -1,101 +1,81 @@
 const cars = [
-  {n:"Aventador SVJ",d:"770 HP • Final V12 masterpiece",img:"https://images.unsplash.com/photo-1619946794135-5bc917a2772f?q=80&w=1800&auto=format&fit=crop"},
-  {n:"Huracán STO",d:"640 HP • Track-honed perfection",img:"https://images.unsplash.com/photo-1592194996308-7b43878e84a6?q=80&w=1800&auto=format&fit=crop"},
-  {n:"Urus Performante",d:"666 HP • Super SUV royalty",img:"https://images.unsplash.com/photo-1610395219791-7c03d32a7ece?q=80&w=1800&auto=format&fit=crop"},
-  {n:"Revuelto",d:"1015 HP • The hybrid era begins",img:"https://images.unsplash.com/photo-1705502823166-6fe39a3cff53?q=80&w=1800&auto=format&fit=crop"},
-  {n:"Gallardo",d:"V10 legend • Forever",img:"https://images.unsplash.com/photo-1618477462327-6f909fcdf130?q=80&w=1800&auto=format&fit=crop"}
+  {img: "https://images.unsplash.com/photo-1619946794135-5bc917a2772f?q=80&w=1600&auto=format&fit=crop", model: "Aventador"},
+  {img: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?q=80&w=1600&auto=format&fit=crop", model: "Huracan"},
+  {img: "https://images.unsplash.com/photo-1610395219791-7c03d32a7ece?q=80&w=1600&auto=format&fit=crop", model: "Urus"},
+  {img: "https://images.unsplash.com/photo-1705502823166-6fe39a3cff53?q=80&w=1600&auto=format&fit=crop", model: "Revuelto"},
+  {img: "https://images.unsplash.com/photo-1618477462327-6f909fcdf130?q=80&w=1600&auto=format&fit=crop", model: "Gallardo"}
 ];
 
 const track = document.getElementById('track');
 const bg = document.getElementById('bg');
-const title = document.getElementById('title');
-const desc = document.getElementById('desc');
-const btn = document.querySelector('.info button');
-let current = 0;
-let expanding = null;
+const cta = document.querySelector('.cta-overlay');
+let clone = null;
 
-function init() {
-  track.innerHTML = cars.map((c,i) => `
-    <div class="card" data-index="${i}">
-      <img src="${c.img}" alt="${c.n}">
-      <div class="label">${c.n}</div>
-    </div>
-  `).join('');
-  updateActive();
-  showText(0);
+// Build track
+cars.forEach(car => {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.innerHTML = `<img src="${car.img}">`;
+  track.appendChild(div);
+});
+
+bg.style.backgroundImage = `url(${cars[0].img})`;
+
+// Translation simulation (like video's middleware)
+function translate(text, toLang = 'es') {
+  // Mock Google Translate — in real app, use api
+  const translations = {
+    en: { 'Rent luxury now': 'Alquila lujo ahora' },
+    es: { 'Rent luxury now': 'Alquila lujo ahora' }
+  };
+  return Promise.resolve(translations[toLang]?.[text] || text);
 }
 
-function updateActive() {
-  track.querySelectorAll('.card').forEach((c,i) => {
-    c.classList.toggle('active', i === current);
-  });
-}
+// Swipe + explode (matches video timing)
+function swipe(dir = 'next') {
+  if (clone) return;
+  const card = track.children[0];
+  const r = card.getBoundingClientRect();
 
-function showText(idx) {
-  const car = cars[idx];
-  title.textContent = car.n;
-  desc.textContent = car.d;
-  gsap.fromTo([title, desc, btn], 
-    {opacity:0, y:50},
-    {opacity:1, y:0, duration:1.8, stagger:0.3, ease:"power2.out"}
-  );
-}
+  clone = document.createElement('div');
+  clone.className = 'clone';
+  clone.style.left = r.left + 'px';
+  clone.style.top = r.top + 'px';
+  clone.style.width = r.width + 'px';
+  clone.style.height = r.height + 'px';
+  clone.style.backgroundImage = `url(${card.querySelector('img').src})`;
+  document.body.appendChild(clone);
 
-function explodeAndRemove(cardEl, direction = "next") {
-  if (expanding) return;
-  const rect = cardEl.getBoundingClientRect();
-  const img = cardEl.querySelector('img').src;
+  card.style.opacity = 0;
 
-  expanding = document.createElement('div');
-  expanding.className = 'expand';
-  expanding.style.cssText = `left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;background-image:url(${img})`;
-  document.body.appendChild(expanding);
-
-  // Hide the original card immediately
-  cardEl.style.opacity = 0;
-
-  const tl = gsap.timeline({
+  gsap.timeline({
     onComplete: () => {
-      if (direction === "next") {
-        current = (current + 1) % cars.length;
-        track.appendChild(track.children[0]);
-      } else {
-        current = (current - 1 + cars.length) % cars.length;
-        track.insertBefore(track.lastElementChild, track.firstElementChild);
-      }
-      gsap.set(track, {x:0});
-      updateActive();
-      showText(current);
-      bg.style.backgroundImage = `url(${cars[current].img})`;
-      expanding.remove();
-      expanding = null;
-      track.querySelectorAll('.card').forEach(c => c.style.opacity = 1);
+      bg.style.backgroundImage = `url(${card.querySelector('img').src})`;
+      clone.remove(); clone = null;
+      card.style.opacity = 1;
+
+      // Simulate translation on new bg
+      translate('Rent luxury now').then(translated => {
+        document.querySelector('.cta-overlay a').textContent = translated;
+        gsap.to(cta, {opacity:1, duration:1, delay:1});
+      });
     }
-  });
+  })
+  .to(clone, {left:0, top:0, width:'100vw', height:'100vh', borderRadius:0, duration:1.5, ease:'power2.inOut'}, 0)
+  .to(track, {x: dir === 'next' ? -180 : 0, duration:1.5, ease:'power2.inOut'}, 0);
 
-  if (direction === "next") {
-    tl.to(track, {x: -205, duration: 1.6, ease: "power3.inOut"}, 0.3);
+  if (dir === 'next') {
+    gsap.to(track, {x:0, duration:0, onComplete: () => {
+      track.appendChild(track.children[0]);
+      gsap.set(track, {x:0});
+    }}, 1.5);
   } else {
-    gsap.set(track, {x: -205});
-    tl.to(track, {x: 0, duration: 1.6, ease: "power3.inOut"}, 0.3);
+    gsap.set(track, {x: -180});
+    track.insertBefore(track.lastElementChild, track.firstElementChild);
   }
-
-  tl.to(expanding, {
-    left: 0, top: 0, width: "100vw", height: "100vh",
-    borderRadius: 0,
-    duration: 2.2,
-    ease: "power3.inOut"
-  }, 0);
-
-  tl.to(expanding, {scale: 1.08}, 1.2);
-  tl.to(expanding, {scale: 1, duration: 1}, 1.8);
 }
 
-document.getElementById('next').onclick = () => explodeAndRemove(track.children[0], "next");
-document.getElementById('prev').onclick = () => {
-  track.insertBefore(track.lastElementChild, track.firstElementChild);
-  explodeAndRemove(track.children[0], "prev");
-};
+document.getElementById('next').onclick = () => swipe('next');
+document.getElementById('prev').onclick = () => swipe('prev');
 
-init();
-setInterval(() => document.getElementById('next').click(), 7000);
+setInterval(() => swipe('next'), 6000);

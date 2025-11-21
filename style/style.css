@@ -1,49 +1,43 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:"Poppins",sans-serif;background:#000;color:#fff;overflow:hidden}
 
-.navbar{position:fixed;top:0;left:0;width:100%;padding:20px 48px;display:flex;justify-content:space-between;align-items:center;z-index:50;background:rgba(0,0,0,0.3);backdrop-filter:blur(10px)}
-.logo{font-weight:800;letter-spacing:2px;font-size:20px}
-.nav-links{display:flex;gap:32px;list-style:none;font-weight:600}
+.navbar{position:fixed;top:0;left:0;width:100%;padding:24px 48px;display:flex;justify-content:space-between;align-items:center;z-index:100;background:rgba(0,0,0,0.35);backdrop-filter:blur(12px)}
+.logo{font-weight:900;letter-spacing:3px;font-size:21px}
+.nav-links{display:flex;gap:36px;list-style:none;font-weight:600;font-size:15px}
 .nav-links li{cursor:pointer;transition:.3s}
-.nav-links li.active,.nav-links li:hover{color:#d4af37}
+.nav-links li:hover,.nav-links li.active{color:#d4af37}
 
-.background{position:fixed;inset:0;background-size:cover;background-position:center;z-index:0}
-.background::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,transparent 15%,rgba(0,0,0,0.7) 100%);pointer-events:none}
+.background{position:fixed;inset:0;background-size:cover;background-position:center;z-index:0;transition:opacity 1s ease}
+.background::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at center,transparent 10%,rgba(0,0,0,0.75) 100%);pointer-events:none}
 
 .hero{position:relative;z-index:10;height:100vh;display:flex;align-items:center;padding:90px 80px}
-.info{width:44%}
-.info h1{font-family:"Montserrat",sans-serif;font-size:56px;color:#d4af37;margin-bottom:16px;letter-spacing:-1px}
-.info p{font-size:19px;line-height:1.6;max-width:620px;opacity:0.95}
-.rent-btn{margin-top:28px;padding:16px 40px;border-radius:40px;background:#d4af37;color:#000;font-weight:800;font-size:17px;border:none;cursor:pointer;transition:.4s}
-.rent-btn:hover{transform:scale(1.06);box-shadow:0 20px 50px rgba(212,175,55,.3)}
+.info{width:46%}
+.info h1{font-family:"Montserrat",sans-serif;font-size:58px;color:#d4af37;margin-bottom:16px;letter-spacing:-1.5px}
+.info p{font-size:20px;line-height:1.6;opacity:0.94;max-width:640px}
+.rent-btn{margin-top:32px;padding:18px 44px;border-radius:50px;background:#d4af37;color:#000;font-weight:900;font-size:18px;border:none;cursor:pointer;transition:.4s}
+.rent-btn:hover{transform:scale(1.07);box-shadow:0 25px 60px rgba(212,175,55,.35)}
 
-.gallery-viewport{position:absolute;right:80px;top:50%;transform:translateY(-50%);width:520px;height:260px;display:flex;align-items:center;gap:12px;z-index:15}
-.gallery-frame{width:520px;height:260px;overflow:hidden;border-radius:8px}
-.gallery-track{display:flex;gap:20px;will-change:transform;
-  animation:float 18s ease-in-out infinite}
-.gallery-viewport:hover .gallery-track{animation-play-state:paused}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.gallery-viewport{position:absolute;right:80px;top:50%;transform:translateY(-50%);width:520px;height:260px;display:flex;align-items:center;gap:14px;z-index:15}
+.gallery-frame{width:520px;height:260px;overflow:hidden;border-radius:10px}
+.gallery-track{display:flex;gap:20px;will-change:transform}
 
-.card{width:160px;height:240px;border-radius:16px;overflow:hidden;box-shadow:0 15px 40px rgba(0,0,0,0.7);position:relative;cursor:pointer;flex:0 0 auto}
-.card img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
-.card:hover img{transform:scale(1.08)}
-.card .label{position:absolute;left:12px;bottom:12px;background:rgba(0,0,0,0.55);padding:6px 12px;border-radius:10px;font-weight:700;font-size:13px;backdrop-filter:blur(6px)}
+.card{width:160px;height:240px;border-radius:18px;overflow:hidden;box-shadow:0 15px 45px rgba(0,0,0,0.8);position:relative;cursor:pointer;flex:0 0 auto;transition:all .4s}
+.card img{width:100%;height:100%;object-fit:cover;transition:transform .8s}
+.card:hover img{transform:scale(1.1)}
+.card .label{position:absolute;left:14px;bottom:14px;background:rgba(0,0,0,0.6);padding:8px 14px;border-radius:12px;font-weight:800;font-size:14px;backdrop-filter:blur(8px)}
 
-/* Lamborghini golden glow only on center card */
-.card.center{box-shadow:0 0 40px rgba(212,175,55,0.7),0 20px 60px rgba(0,0,0,0.8);transform:translateY(-10px)}
-
-/* The exploding card overlay */
-.becoming-overlay{
-  position:fixed;z-index:60;pointer-events:none;
-  background-size:cover;background-position:center;
-  border-radius:16px;
-  filter:blur(0px) saturate(1);
-  transform-origin:center center;
+/* GLOW ONLY ON LEFTMOST (ACTIVE) CARD */
+.card.active{
+  box-shadow:0 0 50px rgba(212,175,55,0.8),0 25px 70px rgba(0,0,0,0.9) !important;
+  transform:translateY(-12px) scale(1.02);
 }
 
-/* Buttons */
-.carousel-btn{width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,0.5);border:none;color:#fff;font-size:30px;cursor:pointer;z-index:70;box-shadow:0 10px 30px rgba(0,0,0,0.6);transition:.3s}
-.carousel-btn:hover{transform:scale(1.1);background:#d4af37;color:#000}
+.becoming-overlay{position:fixed;z-index:60;pointer-events:none;background-size:cover;background-position:center;border-radius:18px}
 
-/* Responsive */
-@media(max-width:780px){.info{display:none}.gallery-viewport{right:50%;transform:translateX(50%) translateY(20%);bottom:40px;top:auto;width:92%}}
+.carousel-btn{width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,0.55);border:none;color:#fff;font-size:32px;cursor:pointer;z-index:70;box-shadow:0 12px 40px rgba(0,0,0,0.7);transition:.3s}
+.carousel-btn:hover{background:#d4af37;color:#000;transform:scale(1.12)}
+
+@media(max-width:780px){
+  .info{display:none}
+  .gallery-viewport{right:50%;transform:translateX(50%) translateY(30%);bottom:30px;top:auto;width:94%}
+}

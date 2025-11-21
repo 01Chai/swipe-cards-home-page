@@ -1,28 +1,101 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Poppins', sans-serif; background: #000; color: #fff; height: 100vh; overflow: hidden; }
-.bg { position: fixed; inset: 0; background-size: cover; background-position: center; z-index: 0; opacity: 1; transition: opacity 1s ease; }
-.bg::after { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at center, transparent 25%, rgba(0,0,0,0.7) 100%); pointer-events: none; }
+const cars = [
+  {n:"Aventador SVJ",d:"770 HP • Final V12 masterpiece",img:"https://images.unsplash.com/photo-1619946794135-5bc917a2772f?q=80&w=1800&auto=format&fit=crop"},
+  {n:"Huracán STO",d:"640 HP • Track-honed perfection",img:"https://images.unsplash.com/photo-1592194996308-7b43878e84a6?q=80&w=1800&auto=format&fit=crop"},
+  {n:"Urus Performante",d:"666 HP • Super SUV royalty",img:"https://images.unsplash.com/photo-1610395219791-7c03d32a7ece?q=80&w=1800&auto=format&fit=crop"},
+  {n:"Revuelto",d:"1015 HP • The hybrid era begins",img:"https://images.unsplash.com/photo-1705502823166-6fe39a3cff53?q=80&w=1800&auto=format&fit=crop"},
+  {n:"Gallardo",d:"V10 legend • Forever",img:"https://images.unsplash.com/photo-1618477462327-6f909fcdf130?q=80&w=1800&auto=format&fit=crop"}
+];
 
-.hero { position: relative; z-index: 10; height: 100vh; display: flex; align-items: center; padding: 0 80px; }
-.info { width: 45%; }
-.info h1 { font-family: 'Montserrat', sans-serif; font-size: 60px; color: #d4af37; margin-bottom: 16px; font-weight: 900; letter-spacing: -1px; }
-.info p { font-size: 18px; line-height: 1.6; opacity: 0.95; max-width: 600px; }
-.rent-btn { margin-top: 28px; padding: 16px 40px; background: #d4af37; color: #000; border: none; border-radius: 40px; font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.3s ease; }
-.rent-btn:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(212, 175, 55, 0.3); }
+const track = document.getElementById('track');
+const bg = document.getElementById('bg');
+const title = document.getElementById('title');
+const desc = document.getElementById('desc');
+const btn = document.querySelector('.info button');
+let current = 0;
+let expanding = null;
 
-.carousel { position: absolute; right: 80px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 20px; }
-.viewport { width: 520px; height: 260px; overflow: hidden; border-radius: 12px; }
-.track { display: flex; gap: 20px; height: 100%; will-change: transform; }
+function init() {
+  track.innerHTML = cars.map((c,i) => `
+    <div class="card" data-index="${i}">
+      <img src="${c.img}" alt="${c.n}">
+      <div class="label">${c.n}</div>
+    </div>
+  `).join('');
+  updateActive();
+  showText(0);
+}
 
-.card { width: 160px; height: 240px; border-radius: 14px; overflow: hidden; flex: 0 0 auto; box-shadow: 0 12px 30px rgba(0,0,0,0.6); cursor: pointer; position: relative; transition: all 0.4s ease; }
-.card img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.card .label { position: absolute; left: 12px; bottom: 12px; background: rgba(0,0,0,0.5); padding: 6px 10px; border-radius: 8px; font-weight: 600; font-size: 13px; color: #fff; backdrop-filter: blur(4px); }
+function updateActive() {
+  track.querySelectorAll('.card').forEach((c,i) => {
+    c.classList.toggle('active', i === current);
+  });
+}
 
-.card.active { box-shadow: 0 0 40px rgba(212, 175, 55, 0.7), 0 20px 50px rgba(0,0,0,0.8); transform: translateY(-8px) scale(1.02); }
+function showText(idx) {
+  const car = cars[idx];
+  title.textContent = car.n;
+  desc.textContent = car.d;
+  gsap.fromTo([title, desc, btn], 
+    {opacity:0, y:50},
+    {opacity:1, y:0, duration:1.8, stagger:0.3, ease:"power2.out"}
+  );
+}
 
-.overlay { position: fixed; z-index: 50; pointer-events: none; background-size: cover; background-position: center; border-radius: 14px; transform-origin: center center; }
+function explodeAndRemove(cardEl, direction = "next") {
+  if (expanding) return;
+  const rect = cardEl.getBoundingClientRect();
+  const img = cardEl.querySelector('img').src;
 
-#prev, #next { width: 44px; height: 44px; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; color: #fff; font-size: 28px; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: all 0.2s ease; z-index: 20; }
-#prev:hover, #next:hover { background: rgba(212, 175, 55, 0.8); transform: scale(1.1); }
+  expanding = document.createElement('div');
+  expanding.className = 'expand';
+  expanding.style.cssText = `left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;background-image:url(${img})`;
+  document.body.appendChild(expanding);
 
-@media (max-width: 900px) { .info { display: none; } .carousel { right: 50%; transform: translateX(50%) translateY(-50%); } }
+  // Hide the original card immediately
+  cardEl.style.opacity = 0;
+
+  const tl = gsap.timeline({
+    onComplete: () => {
+      if (direction === "next") {
+        current = (current + 1) % cars.length;
+        track.appendChild(track.children[0]);
+      } else {
+        current = (current - 1 + cars.length) % cars.length;
+        track.insertBefore(track.lastElementChild, track.firstElementChild);
+      }
+      gsap.set(track, {x:0});
+      updateActive();
+      showText(current);
+      bg.style.backgroundImage = `url(${cars[current].img})`;
+      expanding.remove();
+      expanding = null;
+      track.querySelectorAll('.card').forEach(c => c.style.opacity = 1);
+    }
+  });
+
+  if (direction === "next") {
+    tl.to(track, {x: -205, duration: 1.6, ease: "power3.inOut"}, 0.3);
+  } else {
+    gsap.set(track, {x: -205});
+    tl.to(track, {x: 0, duration: 1.6, ease: "power3.inOut"}, 0.3);
+  }
+
+  tl.to(expanding, {
+    left: 0, top: 0, width: "100vw", height: "100vh",
+    borderRadius: 0,
+    duration: 2.2,
+    ease: "power3.inOut"
+  }, 0);
+
+  tl.to(expanding, {scale: 1.08}, 1.2);
+  tl.to(expanding, {scale: 1, duration: 1}, 1.8);
+}
+
+document.getElementById('next').onclick = () => explodeAndRemove(track.children[0], "next");
+document.getElementById('prev').onclick = () => {
+  track.insertBefore(track.lastElementChild, track.firstElementChild);
+  explodeAndRemove(track.children[0], "prev");
+};
+
+init();
+setInterval(() => document.getElementById('next').click(), 7000);
